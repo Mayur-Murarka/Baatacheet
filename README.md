@@ -55,14 +55,17 @@ Deployable directly on **Railway**, **Fly.io**, **DigitalOcean App Platform**, o
 
 ---
 
-### Option 3: Separate Deployment (Vercel + Render)
+### Option 3: Deploy Frontend to Vercel
 
-- **Frontend on Vercel**:
-  - Root directory: `frontend`
-  - Framework: `Vite`
-  - Build command: `npm run build`
-  - Output directory: `dist`
-  - Environment variable: `VITE_SERVER=https://your-backend-service.onrender.com`
+The repo now includes [`vercel.json`](./vercel.json) configured out-of-the-box:
+
+1. Import the repository in [Vercel](https://vercel.com).
+2. Leave all Root Directory / Build Settings as default (automatically detected via `vercel.json`).
+3. Add Environment Variable:
+   - `VITE_SERVER`: The URL of your deployed backend service (e.g. `https://your-backend.onrender.com`).
+4. Click **Deploy**. Vercel will build and serve the client with full client-side SPA routing support.
+
+> **Note on WebSockets**: Realtime chats require WebSockets (`socket.io`). You should run your backend on a persistent server (Render, Railway, Fly.io, or Docker) so that WebSocket connections and MongoDB stay active.
 
 - **Backend on Render**:
   - Root directory: `backend`

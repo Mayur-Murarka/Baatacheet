@@ -12,6 +12,7 @@ frontend/.env
 
 # Build outputs
 dist/
+public/
 frontend/dist/
 dist-ssr/
 build/
