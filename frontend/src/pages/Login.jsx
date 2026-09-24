@@ -62,7 +62,12 @@ const Login = () => {
         id: toastId,
       });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something Went Wrong", {
+      const errorMsg =
+        error?.response?.data?.message ||
+        (error.message === "Network Error"
+          ? "Cannot connect to server. Please ensure the backend server is running."
+          : error.message || "Something Went Wrong");
+      toast.error(errorMsg, {
         id: toastId,
       });
     } finally {
@@ -102,7 +107,12 @@ const Login = () => {
         id: toastId,
       });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something Went Wrong", {
+      const errorMsg =
+        error?.response?.data?.message ||
+        (error.message === "Network Error"
+          ? "Cannot connect to server. Please ensure the backend server is running."
+          : error.message || "Something Went Wrong");
+      toast.error(errorMsg, {
         id: toastId,
       });
     } finally {

@@ -10,7 +10,11 @@ const SocketProvider = ({ children }) => {
   const socket = useMemo(() => {
     const socketUrl =
       server || (typeof window !== "undefined" ? window.location.origin : undefined);
-    return io(socketUrl, { withCredentials: true });
+    return io(socketUrl, {
+      withCredentials: true,
+      reconnectionAttempts: 5,
+      timeout: 10000,
+    });
   }, []);
 
   return (
