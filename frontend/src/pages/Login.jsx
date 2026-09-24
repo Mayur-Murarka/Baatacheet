@@ -160,7 +160,7 @@ const Login = () => {
                   fullWidth
                   label="Password"
                   type="password"
-                  autocomplete="current-password"
+                  autoComplete="current-password"
                   margin="normal"
                   variant="outlined"
                   value={password.value}
@@ -290,7 +290,7 @@ const Login = () => {
                   label="Password"
                   type="password"
                   margin="normal"
-                  autocomplete="current-password"
+                  autoComplete="current-password"
                   variant="outlined"
                   value={password.value}
                   onChange={password.changeHandler}

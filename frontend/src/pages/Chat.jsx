@@ -50,9 +50,12 @@ const Chat = ({ chatId, user }) => {
   const [userTyping, setUserTyping] = useState(false);
   const typingTimeout = useRef(null);
 
-  const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
+  const chatDetails = useChatDetailsQuery({ chatId }, { skip: !chatId });
 
-  const oldMessagesChunk = useGetMessagesQuery({ chatId, page });
+  const oldMessagesChunk = useGetMessagesQuery(
+    { chatId, page },
+    { skip: !chatId }
+  );
 
   const { data: oldMessages, setData: setOldMessages } = useInfiniteScrollTop(
     containerRef,

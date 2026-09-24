@@ -1,4 +1,7 @@
 import express from "express";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 import { connectDB } from "./utils/features.js";
 import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/error.js";
@@ -26,17 +29,26 @@ import userRoute from "./routes/user.js";
 import chatRoute from "./routes/chat.js";
 import adminRoute from "./routes/admin.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendDistPath = path.join(__dirname, "../frontend/dist");
+
 dotenv.config({
   path: "./.env",
 });
 
 const mongoURI = process.env.MONGO_URI;
 const port = process.env.PORT || 3000;
-const envMode = process.env.NODE_ENV || "PRODUCTION";const adminSecretKey = process.env.ADMIN_SECRET_KEY || "adsasdsdfsdfsdfd";
+const envMode = (process.env.NODE_ENV || "PRODUCTION").trim();
+const adminSecretKey = process.env.ADMIN_SECRET_KEY || "adsasdsdfsdfsdfd";
 const userSocketIDs = new Map();
 const onlineUsers = new Set();
 
-connectDB(mongoURI);
+if (mongoURI) {
+  connectDB(mongoURI);
+} else {
+  console.warn("MONGO_URI is not set. Please configure it in your .env file or environment variables.");
+}
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -61,14 +73,10 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/chat", chatRoute);
 app.use("/api/v1/admin", adminRoute);
 
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
-
 io.use((socket, next) => {
   cookieParser()(
     socket.request,
-    socket.request.res,
+    socket.request.res || {},
     async (err) => await socketAuthenticator(err, socket, next)
   );
 });
@@ -139,6 +147,18 @@ io.on("connection", (socket) => {
     socket.broadcast.emit(ONLINE_USERS, Array.from(onlineUsers));
   });
 });
+
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+  app.get("*", (req, res, next) => {
+    if (req.originalUrl.startsWith("/api")) return next();
+    res.sendFile(path.join(frontendDistPath, "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.send("Baatacheet Server is running. Build frontend to serve static client.");
+  });
+}
 
 app.use(errorMiddleware);
 

@@ -4,11 +4,14 @@ import { v4 as uuid } from "uuid";
 import { v2 as cloudinary } from "cloudinary";
 import { getBase64, getSockets } from "../lib/helper.js";
 
+const isProduction =
+  (process.env.NODE_ENV || "PRODUCTION").trim().toUpperCase() === "PRODUCTION";
+
 const cookieOptions = {
   maxAge: 15 * 24 * 60 * 60 * 1000,
-  sameSite: "none",
+  sameSite: isProduction ? "none" : "lax",
   httpOnly: true,
-  secure: true,
+  secure: isProduction,
 };
 
 const connectDB = (uri) => {
@@ -66,8 +69,16 @@ const uploadFilesToCloudinary = async (files = []) => {
   }
 };
 
-const deletFilesFromCloudinary = async (public_ids) => {
-  // Delete files from cloudinary
+const deletFilesFromCloudinary = async (public_ids = []) => {
+  if (!public_ids || public_ids.length === 0) return;
+  try {
+    const deletePromises = public_ids.map((id) =>
+      cloudinary.uploader.destroy(id)
+    );
+    await Promise.all(deletePromises);
+  } catch (err) {
+    console.error("Error deleting files from cloudinary", err);
+  }
 };
 
 export {
