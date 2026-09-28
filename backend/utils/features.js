@@ -40,6 +40,19 @@ const emitEvent = (req, event, users, data) => {
 };
 
 const uploadFilesToCloudinary = async (files = []) => {
+  const isCloudinaryConfigured =
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET &&
+    !process.env.CLOUDINARY_CLOUD_NAME.includes("your_");
+
+  if (!isCloudinaryConfigured) {
+    return files.map((file) => ({
+      public_id: uuid(),
+      url: getBase64(file),
+    }));
+  }
+
   const uploadPromises = files.map((file) => {
     return new Promise((resolve, reject) => {
       cloudinary.uploader.upload(
@@ -65,12 +78,22 @@ const uploadFilesToCloudinary = async (files = []) => {
     }));
     return formattedResults;
   } catch (err) {
-    throw new Error("Error uploading files to cloudinary", err);
+    console.error("Cloudinary upload failed, falling back to base64 data URL", err);
+    return files.map((file) => ({
+      public_id: uuid(),
+      url: getBase64(file),
+    }));
   }
 };
 
 const deletFilesFromCloudinary = async (public_ids = []) => {
   if (!public_ids || public_ids.length === 0) return;
+  const isCloudinaryConfigured =
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET &&
+    !process.env.CLOUDINARY_CLOUD_NAME.includes("your_");
+  if (!isCloudinaryConfigured) return;
   try {
     const deletePromises = public_ids.map((id) =>
       cloudinary.uploader.destroy(id)
